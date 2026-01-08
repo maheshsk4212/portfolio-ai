@@ -1,8 +1,5 @@
-import yfinance as yf
 import time
 import requests
-import pandas as pd
-import numpy as np
 import random
 from datetime import datetime, timedelta
 
@@ -24,85 +21,31 @@ class MarketDataCache:
 
 market_cache = MarketDataCache(ttl_minutes=15)
 
-# Fix for Yahoo Finance blocking
-session = requests.Session()
-session.headers.update({
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-})
-
 def fetch_live_signals():
     """
-    Fetches live market data from Yahoo Finance.
-    Returns a dictionary of raw values.
+    Simulates live market data (Lightweight for Vercel).
     """
     try:
-        # FORCE SIMULATION for reliability/speed as requested
-        raise ValueError("Force Simulation: Yahoo API is too slow/unreliable") 
-        
-        tickers = ["^VIX", "^TNX", "CL=F", "^NSEI"]
-        
-        # Enforce short timeout via internal requests logic if possible, 
-        # but yfinance is blocking. We can't easily force timeout on yf.download.
-        # So we just accept that if it fails, it fails.
-        # However, to speed it up, we reduce period to '2d' (min needed for trend)
-        data = yf.download(tickers, period="5d", progress=False, session=session)['Close']
-        
-        # Handle MultiIndex if present
-        if isinstance(data.columns, pd.MultiIndex):
-            data.columns = data.columns.get_level_values(0)
-            
-        if data.empty: raise ValueError("Empty market data")
-        
-        # Get latest values (handling potential NaNs/missing days)
-        # Use simple ffill to handle gaps
-        data = data.ffill()
-        latest = data.iloc[-1]
-        prev = data.iloc[-2]
-        
-        # Calculate trends
-        def get_trend(curr, p):
-            if pd.isna(curr) or pd.isna(p): return "STABLE"
-            if curr > p * 1.01: return "UP"
-            if curr < p * 0.99: return "DOWN"
-            return "STABLE"
-
-        signals = {
-            "vix": round(latest.get('^VIX', 15.0), 2),
-            "bond_yields": round(latest.get('^TNX', 4.0), 2),
-            "oil_price": round(latest.get('CL=F', 75.0), 2),
-            "market_index": round(latest.get('^NSEI', 20000.0), 2),
-            
-            "bond_yields_trend": get_trend(latest.get('^TNX'), prev.get('^TNX')),
-            "oil_prices_trend": get_trend(latest.get('CL=F'), prev.get('CL=F')),
-            "interest_rates_trend": "STABLE", 
-            "index_drawdown": 0.0
-        }
-        
-        return signals
-
-    except Exception as e:
-        print(f"Error fetching YF data (Market): {e}")
-        
-        # --- ROBUST SIMULATION (API Blocked) ---
-        # Generate dynamic market conditions so the UI feels alive.
+        # --- ROBUST SIMULATION ---
+        # Generate dynamic market conditions.
         
         # 1. Randomize "Stress Level" (0=Calm, 1=Nervous, 2=Panic)
-        stress_seed = np.random.random()
+        stress_seed = random.random()
         
         sim_vix = 14.0
         drawdown = 2.0
         
         if stress_seed < 0.6: # Calm
-             sim_vix = np.random.uniform(11, 16)
-             drawdown = np.random.uniform(0, 3)
+             sim_vix = random.uniform(11, 16)
+             drawdown = random.uniform(0, 3)
              yield_trend = "STABLE"
         elif stress_seed < 0.9: # Caution
-             sim_vix = np.random.uniform(17, 22)
-             drawdown = np.random.uniform(3, 8)
+             sim_vix = random.uniform(17, 22)
+             drawdown = random.uniform(3, 8)
              yield_trend = "UP"
         else: # Panic/Stress
-             sim_vix = np.random.uniform(23, 35)
-             drawdown = np.random.uniform(8, 15)
+             sim_vix = random.uniform(23, 35)
+             drawdown = random.uniform(8, 15)
              yield_trend = "UP"
              
         return {
@@ -111,6 +54,18 @@ def fetch_live_signals():
             "interest_rates_trend": "STABLE",
             "bond_yields_trend": yield_trend,
             "oil_prices_trend": random.choice(["UP", "DOWN", "STABLE"]),
+            "market_index": 24500.00,
+            "is_simulated": True
+        }
+
+    except Exception as e:
+        print(f"Error in simulation: {e}")
+        return {
+            "vix": 15.0,
+            "index_drawdown": 0.0,
+            "interest_rates_trend": "STABLE",
+            "bond_yields_trend": "STABLE",
+            "oil_prices_trend": "STABLE",
             "market_index": 24500.00,
             "is_simulated": True
         }
