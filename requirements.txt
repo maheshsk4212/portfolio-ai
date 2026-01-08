@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+requests
+python-dotenv
+pydantic
+apscheduler
+google-generativeai
+yfinance
+pandas
+numpy

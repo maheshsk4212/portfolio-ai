@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.DS_Store
+access_token.txt
+verify_result.txt
+*.csv
+result.json
