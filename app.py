@@ -1,5 +1,4 @@
-
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Header
 from fastapi.responses import RedirectResponse, HTMLResponse
 from pydantic import BaseModel
 from pathlib import Path
@@ -50,16 +49,14 @@ def zerodha_callback(request: Request):
     if not request_token:
         return {"error": "Request token missing", "status": "failed"}
 
+    # Generate persistent token
     access_token = generate_session(request_token)
     
     if access_token:
-        return {
-            "status": "success",
-            "message": "Zerodha login successful. Token secured for the day.",
-            "access_token_active": True
-        }
-    else:
-        return {"error": "Failed to generate session", "status": "failed"}
+        # Redirect to Dashboard with Token (Stateless Handshake)
+        return RedirectResponse(url=f"/dashboard?access_token={access_token}")
+        
+    return {"status": "error", "message": "Failed to generate token"}
 
 @app.get("/login-url")
 def login_link():

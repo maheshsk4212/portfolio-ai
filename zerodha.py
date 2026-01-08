@@ -39,14 +39,23 @@ def set_access_token(token: str):
     except Exception as e:
         print(f"Error saving token: {e}")
 
-def get_portfolio_summary() -> dict:
+def get_portfolio_summary(access_token=None) -> dict:
     """
-    Fetches positions/holdings and calculates summary.
+    Fetches positions/holdings using stateless token (Vercel) or global state (Local).
     """
-    # Check if KiteConnect is initialized and an access token is set
-    # kite.access_token is set by set_access_token or generate_session
-    if not kite or not getattr(kite, 'access_token', None):
-        # Return EMPTY state if not logged in. No fake data.
+    # 1. Determine which Kite instance to use
+    if access_token:
+        try:
+            k = KiteConnect(api_key=os.getenv("KITE_API_KEY"))
+            k.set_access_token(access_token)
+        except Exception as e:
+            print(f"Error initializing stateless kite: {e}")
+            k = None
+    else:
+        k = kite
+
+    # 2. Check Validity
+    if not k or not getattr(k, 'access_token', None):
         return {
             "total_value": 0.0,
             "sector_allocation": {},
@@ -59,8 +68,8 @@ def get_portfolio_summary() -> dict:
         }
 
     try:
-        # Ideally fetch 'holdings' which are long term
-        holdings = kite.holdings()
+        # Fetch holdings
+        holdings = k.holdings()
         
         total_value = 0.0
         total_unrealized_pnl = 0.0 # Renamed from 'pnl' to avoid confusion with individual stock pnl
