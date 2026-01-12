@@ -92,8 +92,8 @@ def market_context():
     return get_market_context()
 
 @app.get("/portfolio")
-def portfolio():
-    data = get_portfolio_summary()
+def portfolio(x_auth_token: str = Header(None)):
+    data = get_portfolio_summary(access_token=x_auth_token)
     
     # Dynamic Risk Status based on Market Regime
     try:

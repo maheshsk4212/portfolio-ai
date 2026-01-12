@@ -1276,7 +1276,7 @@
     async function fetchData(silent = false) {
       if (!silent) document.getElementById('loading').style.display = 'flex';
       try {
-        const res = await fetch('/portfolio', {
+        const res = await fetch('/portfolio?_t=' + Date.now(), {
           headers: { 'x-auth-token': localStorage.getItem('kite_token') || '' }
         });
         const data = await res.json();
