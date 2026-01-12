@@ -58,6 +58,18 @@ def fetch_live_signals():
             "is_simulated": True
         }
 
+    except Exception as e:
+        print(f"Error in simulation: {e}")
+        return {
+            "vix": 15.0,
+            "index_drawdown": 0.0,
+            "interest_rates_trend": "STABLE",
+            "bond_yields_trend": "STABLE",
+            "oil_prices_trend": "STABLE",
+            "market_index": 24500.00,
+            "is_simulated": True
+        }
+
 def get_market_indices():
     """
     Fetches live indices for Header Ticker.
@@ -109,18 +121,6 @@ def get_market_indices():
             })
             
     return results
-
-    except Exception as e:
-        print(f"Error in simulation: {e}")
-        return {
-            "vix": 15.0,
-            "index_drawdown": 0.0,
-            "interest_rates_trend": "STABLE",
-            "bond_yields_trend": "STABLE",
-            "oil_prices_trend": "STABLE",
-            "market_index": 24500.00,
-            "is_simulated": True
-        }
 
 def get_macro_signals():
     # Check cache first
