@@ -157,8 +157,55 @@
       border-top: 1px solid rgba(255, 255, 255, 0.08);
       display: flex;
       gap: 12px;
-      align-items: center;
     }
+
+    /* Ticker Styles */
+    .ticker-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+      margin-right: 20px;
+    }
+
+    .ticker-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      font-size: 12px;
+      transition: all 0.2s;
+      cursor: default;
+    }
+
+    .ticker-group:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .ticker-label {
+      color: #94a3b8;
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+
+    .ticker-val {
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .ticker-up {
+      color: #86efac;
+    }
+
+    .ticker-down {
+      color: #f87171;
+    }
+
 
     .chat-input {
       flex: 1;
@@ -897,6 +944,9 @@
         <div style="color: var(--text-muted); font-size: 13px;">AI Portfolio Intelligence Platform</div>
       </div>
       <div class="header-actions">
+        <div id="marketTicker" class="ticker-container">
+          <div class="ticker-item"><span class="ticker-label">LOADING...</span></div>
+        </div>
         <button class="btn" onclick="toggleTheme()" id="themeBtn" title="Toggle Theme">
           <i class="ri-moon-line"></i>
         </button>
@@ -1788,15 +1838,20 @@
         const container = document.getElementById('marketTicker');
         if (!container) return;
 
-        container.innerHTML = data.map(item => `
-            <div class="ticker-item">
+        const parts = data.map(item => {
+          const colorClass = item.is_up ? 'ticker-up' : 'ticker-down';
+          const arrow = item.is_up ? '▲' : '▼';
+          return `
+              <span class="ticker-group">
                 <span class="ticker-label">${item.label}</span>
-                <span class="ticker-value ${item.is_up ? 'ticker-up' : 'ticker-down'}">
-                    ${item.value.toLocaleString()} 
-                    <span>${item.is_up ? '▲' : '▼'} ${Math.abs(item.pct)}%</span>
+                <span class="ticker-val ${colorClass}">
+                    ${item.value.toLocaleString()} ${arrow} ${Math.abs(item.pct)}%
                 </span>
-            </div>
-          `).join('');
+              </span>
+            `;
+        });
+
+        container.innerHTML = parts.join('');
 
       } catch (e) {
         console.error("Ticker Error:", e);
