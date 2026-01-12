@@ -1320,9 +1320,9 @@
           if (rs === 'Moderate') color = '#fbbf24'; // Yellow
           else if (rs === 'High') color = '#ef4444'; // Red
 
-          if (document.getElementById('riskStatusValue')) {
-            document.getElementById('riskStatusValue').innerText = rs;
-            document.getElementById('riskStatusValue').style.color = color;
+          if (document.getElementById('kpiRiskVal')) {
+            document.getElementById('kpiRiskVal').innerText = rs;
+            document.getElementById('kpiRiskVal').style.color = color;
           }
         }
 
@@ -1752,7 +1752,10 @@
       try {
         const res = await fetch('/ai-analysis', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-auth-token': localStorage.getItem('kite_token') || ''
+          },
           body: JSON.stringify({ question: question })
         });
         const data = await res.json();

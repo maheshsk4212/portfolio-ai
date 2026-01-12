@@ -122,8 +122,8 @@ def market_indices():
 # ...
 
 @app.post("/ai-analysis", response_model=AIAnalysisResponse)
-def ai_analysis(req: AIRequest = None):
-    portfolio_data = get_portfolio_summary()
+def ai_analysis(req: AIRequest = None, x_auth_token: str = Header(None)):
+    portfolio_data = get_portfolio_summary(access_token=x_auth_token)
     
     # Calculate Risk & Alerts
     risk_data = calculate_risk_score(portfolio_data)
