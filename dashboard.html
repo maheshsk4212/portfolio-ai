@@ -1273,8 +1273,8 @@
       return val >= 0 ? 'text-green' : 'text-red';
     }
 
-    async function fetchData() {
-      document.getElementById('loading').style.display = 'flex';
+    async function fetchData(silent = false) {
+      if (!silent) document.getElementById('loading').style.display = 'flex';
       try {
         const res = await fetch('/portfolio', {
           headers: { 'x-auth-token': localStorage.getItem('kite_token') || '' }
@@ -1873,7 +1873,9 @@
         console.log("Token secured via URL handshake.");
       }
 
-      fetchData();
+      fetchData(false); // Initial load (visible spinner)
+      setInterval(() => fetchData(true), 10000); // Silent refresh every 10s
+
       fetchMarketContext();
 
       // Init Theme Icon
