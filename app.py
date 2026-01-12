@@ -113,7 +113,11 @@ def portfolio():
     return data
 
 from risk_engine import calculate_risk_score, check_concentration_alerts
-from market_engine import get_market_context
+from market_engine import get_market_context, get_market_indices
+
+@app.get("/indices")
+def market_indices():
+    return get_market_indices()
 
 # ...
 
