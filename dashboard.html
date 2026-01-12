@@ -1226,7 +1226,9 @@
     async function fetchData() {
       document.getElementById('loading').style.display = 'flex';
       try {
-        const res = await fetch('/portfolio');
+        const res = await fetch('/portfolio', {
+          headers: { 'x-auth-token': localStorage.getItem('kite_token') || '' }
+        });
         const data = await res.json();
 
         window.allHoldings = data.holdings || []; // Save for CSV
@@ -1780,6 +1782,17 @@
 
     window.onload = function () {
       startClock();
+
+      // --- TOKEN HANDSHAKE (Vercel Fix) ---
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('access_token');
+      if (token) {
+        localStorage.setItem('kite_token', token);
+        // Clean URL
+        window.history.replaceState({}, document.title, "/dashboard");
+        console.log("Token secured via URL handshake.");
+      }
+
       fetchData();
       fetchMarketContext();
 
