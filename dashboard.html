@@ -1281,6 +1281,16 @@
         });
         const data = await res.json();
 
+        if (data.session_expired) {
+          console.warn("Session expired. Triggering re-login UI.");
+          document.getElementById('loading').style.display = 'none';
+          // Optional: You could auto-redirect or show a specific UI message
+          alert("Your Kite session has expired. Please login again.");
+          localStorage.removeItem('kite_token');
+          window.location.href = '/zerodha/login';
+          return;
+        }
+
         window.allHoldings = data.holdings || []; // Save for CSV
 
         // KPIs
@@ -1308,21 +1318,23 @@
           // Update color
           let color = '#22c55e'; // Low (Green)
           if (rs === 'Moderate') color = '#fbbf24'; // Yellow
-          if (rs === 'High') color = '#ef4444'; // Red
+          else if (rs === 'High') color = '#ef4444'; // Red
 
-          // Directly find the element (KPI 4)
-          // We will modify the HTML to have an ID for this.
-          const rEl = document.getElementById('kpiRiskVal');
-          if (rEl) {
-            rEl.innerText = rs;
-            rEl.style.color = color;
+          if (document.getElementById('riskStatusValue')) {
+            document.getElementById('riskStatusValue').innerText = rs;
+            document.getElementById('riskStatusValue').style.color = color;
           }
         }
 
-        renderChart(data.sector_allocation);
         renderTable(data.holdings || []);
+
+        // USER REQ: Only update Chart on Manual Refresh (not silent)
+        if (!silent) {
+          renderChart(data.sector_allocation);
+        }
+
       } catch (e) {
-        console.error(e);
+        console.error("Fetch Error:", e);
         // alert("Error loading data.");
       } finally {
         document.getElementById('loading').style.display = 'none';

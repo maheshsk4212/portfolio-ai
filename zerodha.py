@@ -140,7 +140,8 @@ def get_portfolio_summary(access_token=None) -> dict:
             "unrealized_pnl": 0.0,
             "day_change": 0.0,
             "day_change_percentage": 0.0,
-            "holdings": []
+            "holdings": [],
+            "session_expired": True  # Flag to trigger re-login
         }
 
 def get_login_url():
